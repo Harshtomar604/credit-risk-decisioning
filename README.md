@@ -2,7 +2,7 @@
 
 **Where should a card lender draw the approval line?** This project predicts the probability that a credit-card client defaults, then turns that probability into a profit-maximising approve/decline rule, with an interactive app to explore the trade-off.
 
-**Live app:** _link added after deployment_
+**Live app:** [credit-risk-decisioning-ht.streamlit.app](https://credit-risk-decisioning-ht.streamlit.app/)
 
 ![Profit vs threshold](reports/profit_curve.png)
 
