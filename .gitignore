@@ -1,0 +1,27 @@
+# data: never commit (licence + size)
+data/
+*.duckdb
+*.csv
+*.parquet
+
+# python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# environment / secrets
+.env
+.streamlit/secrets.toml
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+eda_output.txt
+features_output.txt
+split_output.txt
+cv_output.txt
+calibration_output.txt
+train_output.txt
+profit_output.txt
+explain_output.txt

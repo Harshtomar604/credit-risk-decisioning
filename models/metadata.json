@@ -1,0 +1,22 @@
+{
+  "chosen_model": "gbm_isotonic",
+  "benchmark_model": "logistic_regression",
+  "features": [
+    "max_delay",
+    "recent_delay",
+    "delay_trend",
+    "util_recent",
+    "util_avg",
+    "util_max",
+    "education",
+    "limit_bal",
+    "age",
+    "months_late",
+    "pay_ratio_recent",
+    "bill_trend",
+    "log_pay_amt1"
+  ],
+  "training_rows": 24000,
+  "training_default_rate": 0.2212,
+  "sklearn_version": "1.9.1"
+}
