@@ -131,7 +131,7 @@ c2.metric("Default rate (approved)", f"{default_approved:.1%}",
           delta=f"{default_approved - y.mean():+.1%} vs all clients", delta_color="inverse")
 c3.metric("Profit (NT$ m)", f"{profit:,.1f}")
 c4.metric("Gain vs approve-all", f"{profit - approve_all:+,.1f}m",
-          help=f"Approving everyone would produce a profit of NT$ {approve_all:,.1f}m.")
+          help=f"Profit if every client is approved: NT$ {approve_all:,.1f}m.")
 
 curve = profit_curve(p, y, ead, r, lgd)
 best = curve.loc[curve["profit_m"].idxmax()]
