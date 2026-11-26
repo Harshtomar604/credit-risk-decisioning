@@ -58,6 +58,7 @@ def load_scored_test():
         FROM features f
         JOIN split s USING (client_id)
         WHERE s.split = 'test'
+        ORDER BY client_id
     """).df()
     con.close()
     models = load_models()
@@ -88,7 +89,12 @@ st.caption(
     "economics to see the approval rate, default rate and profit the policy would have produced."
 )
 
-ensure_data()
+try:
+    ensure_data()
+except Exception as e:
+    st.error("Could not download the UCI dataset on first start, so the app cannot score clients yet. "
+             f"Please reload in a few minutes. ({type(e).__name__}: {e})")
+    st.stop()
 df = load_scored_test()
 y = df["default"].to_numpy()
 ead = df["limit_bal"].to_numpy(dtype=float)
@@ -101,10 +107,15 @@ with st.sidebar:
     lgd = st.slider("Loss given default (LGD)", 0.30, 1.00, 0.75, 0.05,
                     help="Share of the credit limit lost when a client defaults.")
     breakeven = r / (r + lgd)
-    use_breakeven = st.checkbox(f"Use break-even threshold r/(r+LGD) = {breakeven:.3f}", value=True)
-    threshold = breakeven if use_breakeven else st.slider(
-        "Approval threshold (approve if PD < threshold)", 0.01, 0.99, round(breakeven, 2), 0.005,
-        help="PD = predicted probability of default.")
+    # Fixed labels and keys keep these widgets (and the user's chosen threshold) stable when r or LGD changes.
+    use_breakeven = st.checkbox("Use break-even threshold r/(r+LGD)", value=True, key="use_breakeven")
+    st.caption(f"Break-even threshold at these settings: {breakeven:.3f}")
+    if use_breakeven:
+        threshold = breakeven
+        st.session_state["manual_threshold"] = round(breakeven, 3)
+    else:
+        threshold = st.slider("Approval threshold (approve if PD < threshold)", 0.01, 0.99, step=0.001,
+                              key="manual_threshold", help="PD = predicted probability of default.")
 
 p = df[f"p_{MODELS[model_label]}"].to_numpy()
 approved = p < threshold
@@ -116,10 +127,10 @@ default_approved = y[approved].mean() if approved.any() else float("nan")
 
 c1, c2, c3, c4 = st.columns(4)
 c1.metric("Approval rate", f"{approval_rate:.1%}")
-c2.metric("Default rate among approved clients", f"{default_approved:.1%}",
+c2.metric("Default rate (approved)", f"{default_approved:.1%}",
           delta=f"{default_approved - y.mean():+.1%} vs all clients", delta_color="inverse")
 c3.metric("Profit (NT$ m)", f"{profit:,.1f}")
-c4.metric("Gain vs approving everyone", f"{profit - approve_all:+,.1f}m",
+c4.metric("Gain vs approve-all", f"{profit - approve_all:+,.1f}m",
           help=f"Approving everyone would produce a profit of NT$ {approve_all:,.1f}m.")
 
 curve = profit_curve(p, y, ead, r, lgd)

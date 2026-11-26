@@ -4,15 +4,16 @@ import duckdb
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-DB_PATH = Path("data/credit.duckdb")
-OUT_PATH = Path("split_output.txt")
+ROOT = Path(__file__).resolve().parents[1]
+DB_PATH = ROOT / "data" / "credit.duckdb"
+OUT_PATH = ROOT / "split_output.txt"
 TEST_SIZE = 0.2
 SEED = 42
 
 
 def main():
     con = duckdb.connect(str(DB_PATH))
-    ids = con.execute('SELECT client_id, "default" FROM features').df()
+    ids = con.execute('SELECT client_id, "default" FROM features ORDER BY client_id').df()
 
     train_ids, test_ids = train_test_split(
         ids["client_id"],
@@ -49,7 +50,7 @@ def main():
     ])
     OUT_PATH.write_text(text)
     print(text)
-    print(f"\nsaved to {OUT_PATH}")
+    print(f"\nsaved to {OUT_PATH.name}")
 
 
 if __name__ == "__main__":

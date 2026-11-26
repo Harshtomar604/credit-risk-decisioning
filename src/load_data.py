@@ -3,7 +3,8 @@ from pathlib import Path
 import duckdb
 from ucimlrepo import fetch_ucirepo
 
-DB_PATH = Path("data/credit.duckdb")
+ROOT = Path(__file__).resolve().parents[1]
+DB_PATH = ROOT / "data" / "credit.duckdb"
 
 COLUMNS = (
     ["limit_bal", "sex", "education", "marriage", "age"]
@@ -40,4 +41,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main()

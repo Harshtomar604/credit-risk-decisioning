@@ -10,10 +10,11 @@ from sklearn.inspection import permutation_importance
 
 from pipelines import FEATURES, SEED
 
-DB_PATH = Path("data/credit.duckdb")
-MODEL_PATH = Path("models/gbm_isotonic.joblib")
-OUT_PATH = Path("explain_output.txt")
-PLOT_PATH = Path("reports/permutation_importance.png")
+ROOT = Path(__file__).resolve().parents[1]
+DB_PATH = ROOT / "data" / "credit.duckdb"
+MODEL_PATH = ROOT / "models" / "gbm_isotonic.joblib"
+OUT_PATH = ROOT / "explain_output.txt"
+PLOT_PATH = ROOT / "reports" / "permutation_importance.png"
 THRESHOLD = 0.15 / (0.15 + 0.75)
 
 SEX_LABELS = {1: "male", 2: "female"}
@@ -32,6 +33,7 @@ def load_test():
         JOIN clients c USING (client_id)
         JOIN test_predictions t USING (client_id)
         WHERE s.split = 'test'
+        ORDER BY client_id
     """).df()
     con.close()
     return df
@@ -88,7 +90,7 @@ def main():
     text = "\n".join(lines)
     OUT_PATH.write_text(text)
     print(text)
-    print(f"\nsaved to {OUT_PATH} and {PLOT_PATH}")
+    print(f"\nsaved to {OUT_PATH.name} and {PLOT_PATH.relative_to(ROOT)}")
 
 
 if __name__ == "__main__":

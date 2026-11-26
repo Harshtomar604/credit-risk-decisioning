@@ -11,8 +11,9 @@ from sklearn.model_selection import StratifiedKFold, cross_val_predict
 from cv_compare import load_train
 from pipelines import SEED, make_gbm, make_logreg
 
-OUT_PATH = Path("calibration_output.txt")
-PLOT_PATH = Path("reports/calibration.png")
+ROOT = Path(__file__).resolve().parents[1]
+OUT_PATH = ROOT / "calibration_output.txt"
+PLOT_PATH = ROOT / "reports" / "calibration.png"
 N_BINS = 10
 
 
@@ -72,7 +73,7 @@ def main():
     text = "\n".join(lines)
     OUT_PATH.write_text(text)
     print(text)
-    print(f"saved to {OUT_PATH} and {PLOT_PATH}")
+    print(f"saved to {OUT_PATH.name} and {PLOT_PATH.relative_to(ROOT)}")
 
 
 if __name__ == "__main__":

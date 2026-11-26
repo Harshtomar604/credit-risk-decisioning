@@ -11,10 +11,11 @@ from sklearn.metrics import brier_score_loss, roc_auc_score
 
 from pipelines import FEATURES
 
-DB_PATH = Path("data/credit.duckdb")
-MODEL_DIR = Path("models")
-OUT_PATH = Path("profit_output.txt")
-PLOT_PATH = Path("reports/profit_curve.png")
+ROOT = Path(__file__).resolve().parents[1]
+DB_PATH = ROOT / "data" / "credit.duckdb"
+MODEL_DIR = ROOT / "models"
+OUT_PATH = ROOT / "profit_output.txt"
+PLOT_PATH = ROOT / "reports" / "profit_curve.png"
 
 BASE_R = 0.15
 BASE_LGD = 0.75
@@ -30,6 +31,7 @@ def load_test():
         FROM features f
         JOIN split s USING (client_id)
         WHERE s.split = 'test'
+        ORDER BY client_id
     """).df()
     con.close()
     return df
@@ -119,7 +121,7 @@ def main():
     text = "\n".join(lines)
     OUT_PATH.write_text(text)
     print(text)
-    print(f"\nsaved to {OUT_PATH} and {PLOT_PATH}")
+    print(f"\nsaved to {OUT_PATH.name} and {PLOT_PATH.relative_to(ROOT)}")
 
 
 if __name__ == "__main__":

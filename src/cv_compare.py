@@ -5,8 +5,9 @@ from sklearn.model_selection import StratifiedKFold, cross_validate
 
 from pipelines import FEATURES, SEED, make_gbm, make_logreg
 
-DB_PATH = Path("data/credit.duckdb")
-OUT_PATH = Path("cv_output.txt")
+ROOT = Path(__file__).resolve().parents[1]
+DB_PATH = ROOT / "data" / "credit.duckdb"
+OUT_PATH = ROOT / "cv_output.txt"
 
 
 def load_train():
@@ -16,6 +17,7 @@ def load_train():
         FROM features f
         JOIN split s USING (client_id)
         WHERE s.split = 'train'
+        ORDER BY client_id
     """).df()
     con.close()
     return df[FEATURES], df["default"]
@@ -42,7 +44,7 @@ def main():
     text = "\n".join(lines)
     OUT_PATH.write_text(text)
     print(text)
-    print(f"saved to {OUT_PATH}")
+    print(f"saved to {OUT_PATH.name}")
 
 
 if __name__ == "__main__":

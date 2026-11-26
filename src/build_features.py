@@ -2,9 +2,10 @@ from pathlib import Path
 
 import duckdb
 
-DB_PATH = Path("data/credit.duckdb")
-SQL_PATH = Path("sql/features.sql")
-OUT_PATH = Path("features_output.txt")
+ROOT = Path(__file__).resolve().parents[1]
+DB_PATH = ROOT / "data" / "credit.duckdb"
+SQL_PATH = ROOT / "sql" / "features.sql"
+OUT_PATH = ROOT / "features_output.txt"
 
 
 def main():
@@ -35,7 +36,7 @@ def main():
 
     OUT_PATH.write_text(text)
     print(text)
-    print(f"\nsaved to {OUT_PATH}")
+    print(f"\nsaved to {OUT_PATH.name}")
 
 
 if __name__ == "__main__":

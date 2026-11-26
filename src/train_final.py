@@ -7,8 +7,9 @@ import sklearn
 from cv_compare import load_train
 from pipelines import FEATURES, make_final_gbm, make_logreg
 
-MODEL_DIR = Path("models")
-OUT_PATH = Path("train_output.txt")
+ROOT = Path(__file__).resolve().parents[1]
+MODEL_DIR = ROOT / "models"
+OUT_PATH = ROOT / "train_output.txt"
 
 
 def main():
@@ -27,7 +28,7 @@ def main():
         joblib.dump(model, path)
         p = model.predict_proba(X)[:, 1]
         lines.append(
-            f"{name}: saved to {path} ({path.stat().st_size / 1024:.0f} KB), "
+            f"{name}: saved to {path.relative_to(ROOT).as_posix()} ({path.stat().st_size / 1024:.0f} KB), "
             f"mean predicted on train: {p.mean():.4f}"
         )
 
@@ -40,7 +41,7 @@ def main():
         "sklearn_version": sklearn.__version__,
     }
     (MODEL_DIR / "metadata.json").write_text(json.dumps(meta, indent=2))
-    lines.append(f"metadata saved to {MODEL_DIR / 'metadata.json'}")
+    lines.append("metadata saved to models/metadata.json")
 
     text = "\n".join(lines)
     OUT_PATH.write_text(text)

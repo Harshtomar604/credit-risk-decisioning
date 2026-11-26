@@ -33,7 +33,7 @@ UCI [Default of Credit Card Clients](https://archive.ics.uci.edu/dataset/350/def
 
 1. **Load:** `ucimlrepo` → DuckDB, with readable column names and null checks (`src/load_data.py`).
 2. **EDA:** undocumented category codes, negative bills, over-limit balances and skewed payments; findings and a cleaning plan recorded before any modelling (`notebooks/eda_1.ipynb`).
-3. **Features in SQL:** 13 behaviour features (worst and recent delay, months late, utilisation, repayment ratio, debt and delay trends) built from the raw table, which is never modified (`sql/features.sql`).
+3. **Features in SQL:** 13 features, 10 of them repayment behaviour (worst and recent delay, months late, utilisation, repayment ratio, debt and delay trends) plus credit limit, age and education, built from the raw table, which is never modified (`sql/features.sql`).
 4. **Split:** 80/20 stratified on default, stored as a table so every later step uses the same clients (`src/split_data.py`).
 5. **Models:** 5-fold CV on the training set. Gradient boosting (AUC 0.781 ± 0.007) beat logistic regression (0.768 ± 0.009) in every fold. For logistic regression only, delays are capped at 3 and utilisation is clipped at the training 99th percentile, inside the pipeline so nothing leaks between folds (`src/pipelines.py`, `src/cv_compare.py`).
 6. **Calibration:** all models were within 1 percentage point on average; isotonic calibration halved the gradient boosting model's calibration error (ECE 0.0062 → 0.0032) and was chosen (`src/calibration.py`).
@@ -50,7 +50,7 @@ Repayment history dominates: shuffling `max_delay` cuts test AUC by 0.066, three
 
 ## Fairness
 
-Sex and marital status are protected characteristics under the UK Equality Act 2010, so they are **excluded from the model** and audited separately at the 0.167 threshold:
+Sex is a protected characteristic under the UK Equality Act 2010, including in the provision of credit, so it is **excluded from the model**. Marital status is excluded too: the Act protects marriage and civil partnership only in employment, not in services, but marital status can act as a proxy for sex and household circumstances. Both are audited separately at the 0.167 threshold:
 
 | Group | Actual default | Mean predicted | Approved | Approval ratio |
 |---|---|---|---|---|
@@ -59,7 +59,9 @@ Sex and marital status are protected characteristics under the UK Equality Act 2
 | Married (2,767) | 24.1% | 22.4% | 57.5% | 1.00 |
 | Single (3,158) | 20.5% | 22.0% | 56.5% | 0.98 |
 
-All approval ratios are above the 0.8 screening level, and the model is calibrated within each sex. It under-predicts risk for married clients and over-predicts it for single clients by about 1.5 percentage points, a likely proxy effect through other features, which would need monitoring in production. The "other" marital group (75 clients) is too small to assess.
+All approval ratios are above the four-fifths (0.8) screening level, and the model is calibrated within each sex. It under-predicts risk for married clients and over-predicts it for single clients by 1.5 to 1.7 percentage points, a likely proxy effect through other features, which would need monitoring in production. The "other" marital group (75 clients) is too small to assess.
+
+Age is also a protected characteristic but stays in the model: the Act's financial-services exception (Schedule 3, paragraph 20A) allows age in a risk assessment that uses relevant information from a reliable source. Its contribution is small (a 0.0009 drop in test AUC when shuffled).
 
 ## Limitations
 
